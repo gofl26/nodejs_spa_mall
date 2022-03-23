@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+
+        <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+                crossorigin="anonymous"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+        <title>나만의 항해 블로그</title>
+        <style>
+            * {
+                font-family: 'Gowun Dodum', sans-serif;
+            }
+            .mytitle {
+                width: 100%;
+                height: 250px;
+    
+                background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://movie-phinf.pstatic.net/20210715_95/1626338192428gTnJl_JPEG/movie_image.jpg');
+                background-position: center;
+                background-size: cover;
+    
+                color: white;
+    
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            main {
+                background: white;
+                min-height: 700px;
+                padding-top: 30px;
+            }
+            .container {
+                width: 700px;
+                height: 600px;
+                
+
+                background: gray;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-sizing: border-box;
+                border-radius: 8px;
+            }
+            .inputname {
+                width: 563px;
+                height: 37px;
+                margin-top: 30px;
+                margin-left: 55px;
+                padding-left: 10px;
+
+                font-size: 20px;
+                line-height: 160px;
+                opacity: 0.5;
+                color: black;
+
+                background: white;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                box-sizing: border-box;
+                border-radius: 8px;
+            }
+            .inputtitle {
+                width: 563px;
+                height: 37px;
+                margin-top: 30px;
+                margin-left: 55px;
+                padding-left: 10px;
+
+                font-size: 20px;
+                line-height: 160px;
+                opacity: 0.5;
+                color: black;
+
+                background: white;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                box-sizing: border-box;
+                border-radius: 8px;
+            }
+            .inputcomment {
+                width: 563px;
+                height: 74px;
+                margin-top: 30px;
+                margin-left: 55px;
+                padding-left: 10px;
+
+                font-size: 20px;
+                line-height: 160px;
+                opacity: 0.5;
+                color: black;
+
+                background: white;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                box-sizing: border-box;
+                border-radius: 8px;
+            }
+            .inputpw {
+                width: 563px;
+                height: 37px;
+                margin-top: 30px;
+                margin-left: 55px;
+                padding-left: 10px;
+
+                font-size: 20px;
+                line-height: 160px;
+                opacity: 0.5;
+                color: black;
+
+                background: white;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                box-sizing: border-box;
+                border-radius: 8px;
+            }
+            .btn {
+                
+                width: 148px;
+                height: 38px;
+                margin-left: 250px;
+                margin-top: 50px;
+                padding-left: 10px;
+
+                font-size: 20px;
+                line-height: 140%;
+                color: #FFFFFF;
+
+                background: #7D24CF;
+                border-radius: 100px;
+            }
+        </style>
+        <script>
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const postsId = urlParams.get("postsId");
+            console.log(postsId)    
+
+            $(document).ready(function () {
+            listing();
+            });
+
+            
+            function listing() {
+                $.ajax({
+                    type: 'GET',
+                    url: `/api/posts/${postsId}`,
+                    data: {},
+                    success: function (res) {
+                        let rows = res['detail']
+
+                        let pw = rows['pw']
+                        let title = rows['title']
+                        let name = rows['name']
+                        let postsId = rows['postsId']
+                        let comment = rows['comment']
+
+                        let temp_html = `<input id="name" class="inputname" type="text" placeholder="${name}" >
+                                            <input id="title" class="inputtitle" type="text" placeholder="${title}" >
+                                            <input id="comment" class="inputcomment" type="text" placeholder="${comment}" >
+                                            <input id="pw" class="inputpw" type="text" placeholder="pw를 입력하세요" >
+                                            <button class="btn" onclick="complete('${name}','${title}','${comment}','${pw}','${postsId}')">작성 완료</button>
+                                            <button class="btn" onclick="deletepost('${pw}','${postsId}')">삭제</button>`
+                                            
+                        $('#revise-box').append(temp_html)
+                    }
+                });
+            }
+
+                       
+            function complete(name1,title1,comment1,pw1,postsId1) {
+                
+                let postsId = postsId1;
+                let name = $('#name').val()
+                if(!name){
+                    name = name1
+                }
+                let title = $('#title').val()
+                if(!title){
+                    title = title1
+                }
+                let comment = $('#comment').val()
+                if(!comment){
+                    comment = comment1
+                }
+                let pw = $('#pw').val()
+                console.log(name, title, comment,pw)
+                if(pw===pw1){
+                    $.ajax({
+                        type: 'PUT',
+                        url: '/api/posts/revise',
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            name: name,
+                            pw: pw,
+                            title: title,
+                            comment: comment,
+                            postsId: postsId,
+                        }),
+                        success: function (res) {
+                            alert("등록 완료")
+                            location.href='/'
+                        }
+                    });
+                } else{
+                    alert("비밀번호가 틀렸습니다.")
+                    location.href='/'
+                }
+            }
+            function deletepost(pw1,postsId) {
+                let pw = $('#pw').val()
+                if(pw===pw1){
+                    $.ajax({
+                        type: "DELETE",
+                        url: `/api/posts/${postsId}`,
+                        
+                        success: function () {
+                            alert("삭제 완료")
+                                location.href='/'
+                        },
+                    });
+                } else {
+                    alert("비밀번호가 틀렸습니다.")
+                    location.href='/'
+                }
+                
+            }
+            
+                
+            
+
+        </script>
+    </head>
+    <body>
+        <div class="mytitle">
+            <h1>나만의 항해 블로그</h1>
+        </div>
+        <main>
+            <div class="container" id="revise-box">
+                
+            </div>
+        </main>
+        
+
+    </body>
+
+</html>
