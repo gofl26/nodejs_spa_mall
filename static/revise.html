@@ -143,17 +143,42 @@
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             const postsId = urlParams.get("postsId");
-            console.log(postsId)    
+            
+            let userId1; 
 
             $(document).ready(function () {
-            listing();
+                getSelf(function (user) {
+                    userId1 = user;
+                });
+                listing();
             });
 
+            function getSelf(callback) {
+                $.ajax({
+                type: "GET",
+                url: "/api/users/me",
+                headers: {
+                    authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                success: function (response) {
+                    callback(response.user);
+                },
+                error: function (status) {
+                    if (status == 401) {
+                        alert("로그인이 필요합니다.");
+                    } else {
+                        localStorage.clear();
+                        alert("알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요.");
+                    }
+                    window.location.href = "/";
+                },
+                });
+            }
             
             function listing() {
                 $.ajax({
                     type: 'GET',
-                    url: `/api/posts/${postsId}`,
+                    url: `/api/post/${postsId}`,
                     data: {},
                     success: function (res) {
                         let rows = res['detail']
@@ -197,7 +222,7 @@
                 if(pw===pw1){
                     $.ajax({
                         type: 'PUT',
-                        url: '/api/posts/revise',
+                        url: '/api/revise',
                         contentType: "application/json",
                         data: JSON.stringify({
                             name: name,
@@ -208,7 +233,7 @@
                         }),
                         success: function (res) {
                             alert("등록 완료")
-                            location.href='/'
+                            location.href='/main'
                         }
                     });
                 } else{
@@ -221,16 +246,16 @@
                 if(pw===pw1){
                     $.ajax({
                         type: "DELETE",
-                        url: `/api/posts/${postsId}`,
+                        url: `/api/delete/${postsId}`,
                         
                         success: function () {
                             alert("삭제 완료")
-                                location.href='/'
+                                location.href='/main'
                         },
                     });
                 } else {
                     alert("비밀번호가 틀렸습니다.")
-                    location.href='/'
+                    location.href='/main'
                 }
                 
             }

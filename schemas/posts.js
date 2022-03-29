@@ -24,6 +24,9 @@ const postsSchema = mongoose.Schema({
     pw: {
         type: String,
     },
+    like: {
+        type: Number,
+    },
 });
 
 module.exports = mongoose.model("Posts", postsSchema);

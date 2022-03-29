@@ -25,20 +25,21 @@
             * {
                 font-family: 'Gowun Dodum', sans-serif;
             }
+
             .mytitle {
-                width: 100%;
-                height: 250px;
-    
-                background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://movie-phinf.pstatic.net/20210715_95/1626338192428gTnJl_JPEG/movie_image.jpg');
-                background-position: center;
-                background-size: cover;
-    
-                color: white;
-    
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
+                    width: 100%;
+                    height: 250px;
+
+                    background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://movie-phinf.pstatic.net/20210715_95/1626338192428gTnJl_JPEG/movie_image.jpg');
+                    background-position: center;
+                    background-size: cover;
+
+                    color: white;
+
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
             }
             main {
                 background: white;
@@ -47,7 +48,7 @@
             }
             .container {
                 width: 700px;
-                height: 600px;
+                height: 450px;
                 
 
                 background: gray;
@@ -58,40 +59,6 @@
             .inputname {
                 width: 563px;
                 height: 37px;
-                margin-top: 30px;
-                margin-left: 55px;
-                padding-left: 10px;
-
-                font-size: 20px;
-                line-height: 160px;
-                opacity: 0.5;
-                color: black;
-
-                background: white;
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                box-sizing: border-box;
-                border-radius: 8px;
-            }
-            .inputtitle {
-                width: 563px;
-                height: 37px;
-                margin-top: 30px;
-                margin-left: 55px;
-                padding-left: 10px;
-
-                font-size: 20px;
-                line-height: 160px;
-                opacity: 0.5;
-                color: black;
-
-                background: white;
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                box-sizing: border-box;
-                border-radius: 8px;
-            }
-            .inputcomment {
-                width: 563px;
-                height: 74px;
                 margin-top: 30px;
                 margin-left: 55px;
                 padding-left: 10px;
@@ -138,73 +105,92 @@
                 background: #7D24CF;
                 border-radius: 100px;
             }
+        
+        
         </style>
         <script>
-            let userId1;
-            getSelf(function (user) {
-                userId1 = user;
-            });
+            if (localStorage.getItem("token")) {
+                getSelf(function () {
+                    alert("이미 로그인이 되어있습니다. 메인 페이지로 이동합니다.");
+                    window.location.replace("/main");
+                });
+            }
             function getSelf(callback) {
                 $.ajax({
-                type: "GET",
-                url: "/api/users/me",
-                headers: {
+                    type: "GET",
+                    url: "/api/users/me",
+                    headers: {
                     authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-                success: function (response) {
+                    },
+                    success: function (response) {
                     callback(response.user);
-                },
-                error: function (xhr, status, error) {
-                    if (status === 401) {
+                    },
+                    error: function (xhr, status, error) {
+                    if (status == 401) {
                         alert("로그인이 필요합니다.");
                     } else {
-                    localStorage.clear();
+                        localStorage.clear();
                         alert("알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요.");
                     }
                     window.location.href = "/";
-                },
+                    },
                 });
             }
             function complete() {
-                let name = $('#name').val()
-                let title = $('#title').val()
-                let comment = $('#comment').val()
-                let pw = $('#pw').val()
-                console.log(name,title,comment,pw)
-
+                const nickname = $("#name").val();
+                const password1 = $("#pw1").val();
+                const password2 = $("#pw2").val();
+                const nick = /^[a-zA-Z0-9]{3,15}$/
+                const pw = /^[a-zA-Z0-9]{6,15}$/
+                if(!nick.test(nickname)) {
+                    return alert("조건이 안맞습니다.");
+                }
+                if(!pw.test(password1)){
+                    return alert("조건이 안맞습니다.");
+                }
+                if(password1.includes(nickname)) {
+                    return alert("닉네임과 비밀번호를 다르게 입력하세요")
+                }
                 $.ajax({
-                    type: 'POST',
-                    url: '/api/posts/add',
+                    type: "POST",
+                    url: "/api/users",
                     contentType: "application/json",
                     data: JSON.stringify({
-                        name: name,
-                        pw: pw,
-                        title: title,
-                        comment: comment,
+                        nickname: nickname,
+                        password: password1,
+                        confirmPassword: password2,
                     }),
-                    success: function (res) {
-                        alert("등록 완료")
-                        location.href="/main"
-                    }
+                    success: function (response) {
+                        alert("회원 가입 성공");
+                        window.location.href="/";
+                    },
+                    error: function (error) {
+                        alert(error.responseJSON.errorMessage)
+                        window.location.href="/register";
+                    },
                 });
             }
 
+            
         </script>
-    </head>
+
+     </head>
+
     <body>
         <div class="mytitle">
             <h1>나만의 항해 블로그</h1>
         </div>
         <main>
             <div class="container">
-                <input id="name" class="inputname" type="text" placeholder="이름을 입력하세요" >
-                <input id="title" class="inputtitle" type="text" placeholder="제목을 입력하세요" >
-                <input id="comment" class="inputcomment" type="text" placeholder="Comment를 입력하세요" >
-                <input id="pw" class="inputpw" type="text" placeholder="pw를 입력하세요" >
-                <button class="btn" onclick="complete()">작성 완료</button>
+                <input id="name" class="inputname" type="text" placeholder="닉네임을 입력하세요" >
+                <input id="pw1" class="inputpw" type="password" placeholder="pw를 입력하세요. 영문과 숫자로 6자리 이상" >
+                <input id="pw2" class="inputpw" type="password" placeholder="pw를 재입력하세요." >
+                <button class="btn" onclick="complete()">회원 가입</button>
+                <button class="btn" onclick="window.location.href='/'">취소</button>
             </div>
         </main>
-        
-
+    
+    
     </body>
 </html>
+

@@ -1,113 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <head>
+      <!-- Required meta tags -->
+      <meta charset="utf-8" />
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"
+      />
+      <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+      <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-            crossorigin="anonymous"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+              integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+              crossorigin="anonymous"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-    <title>나만의 항해 블로그</title>
-    <style>
-      * {
-          font-family: 'Gowun Dodum', sans-serif;
-      }
+      <title>나만의 항해 블로그</title>
+      <style>
+        * {
+            font-family: 'Gowun Dodum', sans-serif;
+        }
 
-      .mytitle {
-          width: 100%;
-          height: 250px;
+        .mytitle {
+            width: 100%;
+            height: 250px;
 
-          background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://movie-phinf.pstatic.net/20210715_95/1626338192428gTnJl_JPEG/movie_image.jpg');
-          background-position: center;
-          background-size: cover;
+            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://movie-phinf.pstatic.net/20210715_95/1626338192428gTnJl_JPEG/movie_image.jpg');
+            background-position: center;
+            background-size: cover;
 
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .myposts {
+              margin: 20px auto 0px auto;
+              width: 95%;
+              max-width: 1200px;
+        }
+        .card {
+          margin-top: 10px;
+        }
+        .btn {
+            background-color: blueviolet;
+        }
+        .write {
+          margin: 20px auto 0px auto;
+          
+          
+          width: 500px;
+          height: 37px;
+          
+          
+          padding-left: 10px;
+
+          font-size: 20px;
+          line-height: 160px;
+          opacity: 0.5;
           color: white;
 
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-      }
-      .myposts {
-            margin: 20px auto 0px auto;
-            width: 95%;
-            max-width: 1200px;
-      }
-      .card {
-        margin-top: 10px;
-      }
-      .btn {
-          background-color: blueviolet;
-      }
-      
-    </style>
-    <script>
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const postsId = urlParams.get("postsId");
-        console.log(postsId)
-        $(document).ready(function () {
-                listing(postsId);
-            });
+          background: black;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          box-sizing: border-box;
+          border-radius: 8px;
+        }
+        .comment {
+          margin: 20px auto 0px auto;
+          width: 95%;
+          max-width: 1200px;
+        }
+
+
+        
+      </style>
+      <script>
+          const queryString = window.location.search;
+          const urlParams = new URLSearchParams(queryString);
+          const postsId = urlParams.get("postsId");
+          console.log(postsId)
+          const token = localStorage.getItem("token")
+
+          let userId1;
+
+          $(document).ready(function () {
+                  if (localStorage.getItem("token")) {
+                    getSelf(function (user) {
+                      userId1 = user.userId
+                      console.log(userId1)
+                      
+                    })
+                  }
+                  listing(postsId);
+                  comment1();
+          });
+              
+          function getSelf(callback) {
+                $.ajax({
+                    type: "GET",
+                    url: "/api/users/me",
+                    headers: {
+                    authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                    success: function (response) {
+                      callback(response.user);
+                    },
+                    error: function (xhr, status, error) {
+                  
+                    
+                    },
+                });
+          }
+
+          function listing(postsId) {
+              $.ajax({
+                  type: 'GET',
+                  url: `/api/post/${postsId}`,
+                  data: {},
+                  success: function (res) {
+                      let rows = res['detail']
+                      let date = rows['date']
+                      let title = rows['title']
+                      let name = rows['name']
+                      let postsId = rows['postsId']
+                      let comment = rows['comment']
+                      
+                      let temp_html = `<div class="card" style="width: 50rem;">
+                                          <div class="card-body">
+                                          <h5 class="card-title">${title}</a>
+                                          <h6 class="card-subtitle mb-2 text-muted">${name}</h6>
+                                          <p class="card-text">${date}</p>
+                                          <p class="card-text">${comment}</p>
+                                          <button class="btn" onclick="revise(${postsId})">수정하기</button>
+                                          </div>
+                                      </div>`
+
+                      $('#detail-box').append(temp_html)
+                  }
+              })
+          }
+
+          function comment1() {
+              $.ajax({
+                  type: 'GET',
+                  url: '/api/posts/showcomment',
+                  data: {},
+                  success: function (res) {
+                    let rows = res['comments']
+                    
+                    console.log(rows)
+                    for(i=rows.length-1; i>=0;i--){
+                      let postsId1 = rows[i]['postsId']
+                      if(postsId1===Number(postsId)){
+                        let comment = rows[i]['commentss']
+                        let userId = rows[i]['userId']
+                        let commentId = rows[i]['commentId']
+                        console.log(comment,userId)
+                        let temp_html = `<div class="card" style="width: 50rem;">
+                                            <div class="card-body">
+                                              <h5 class="card-title">${userId}</a>
+                                              <p class="card-text">${comment}</p>
+                                              <input id="commentRevise${i}" type="text" placeholder="${comment}" >
+                                              <button id="reviseComment${i}" class="btn" onclick="reviseComment('${userId}','${commentId}','${i}')">수정하기</button>
+                                              <button id="deletecomment${i}" class="btn" onclick="deletecomment('${userId}','${commentId}')">삭제하기</button>
+                                            </div>
+                                        </div>`
+
+                        $('#comment-box').append(temp_html)
+                        if(userId1!==userId) {
+                          $(`#reviseComment${i}`).hide()
+                          $(`#deletecomment${i}`).hide()
+                          $(`#commentRevise${i}`).hide()
+                        }
+                      }
+                      
+                    }
+                  }
+              })
+          }
+
+          function signOut() {
+            localStorage.clear();
+            window.location.href = "/";
+          }
+
+          function revise(postsId) {
+              location.href=`/revise.html?postsId=${postsId}`
+          }
+
+          
+
+          function complete() {
+            if(!userId1){
+              alert("로그인이 필요한 기능입니다.");
+              window.location.href = "/";
+
+              return; 
+            }
+            let comment = $('#write').val()
+            if(!comment) {
+              alert("댓글 내용을 입력해주세요.");
+              return;
+            }
+            let Id = postsId;
             
-        function listing(postsId) {
             $.ajax({
-                type: 'GET',
-                url: `/api/posts/${postsId}`,
-                data: {},
+                type: 'post',
+                url: '/api/posts/comment',
+                contentType: "application/json",
+                data: JSON.stringify({
+                    commentss: comment,
+                    postsId: Id,
+                    userId: userId1,
+                }),
                 success: function (res) {
-                    let rows = res['detail']
-                    
-                    let date = rows['date']
-                    let title = rows['title']
-                    let name = rows['name']
-                    let postsId = rows['postsId']
-                    let comment = rows['comment']
-                    
-                    let temp_html = `<div class="card" style="width: 50rem;">
-                                        <div class="card-body">
-                                        <h5 class="card-title">${title}</a>
-                                        <h6 class="card-subtitle mb-2 text-muted">${name}</h6>
-                                        <p class="card-text">${date}</p>
-                                        <p class="card-text">${comment}</p>
-                                        <button class="btn" onclick="revise(${postsId})">수정하기</button>
-                                        </div>
-                                    </div>`
-
-                    $('#detail-box').append(temp_html)
-                    
+                    alert("댓글 등록 완료")
+                    location.href=`/detail.html?postsId=${postsId}`
                 }
-            })
-        }
+            });
+          }
 
-        function revise(postsId) {
-            location.href=`/revise.html?postsId=${postsId}`
-        }
-    </script>
+          function reviseComment(userId,commentId1,i) {
+            let comment = $(`#commentRevise${i}`).val()
+            if(!comment) {
+              alert("수정사항을 입력하세요.");
+              return;
+            }
+            console.log(comment)
+            if(userId1!==userId){
+              return alert("내 댓글이 아닙니다.");
+            }
+            $.ajax({
+                type: 'put',
+                url: '/api/posts/commentRevise',
+                contentType: "application/json",
+                data: JSON.stringify({
+                    commentss: comment,
+                    commentId: commentId1,
+                }),
+                success: function (res) {
+                    alert("댓글 수정 완료")
+                    location.href=`/detail.html?postsId=${postsId}`
+                }
+            });
+          }
 
-  </head>
+          function deletecomment(userId,commentId) {
+                if(userId===userId1){
+                  if (confirm("댓글을 삭제하시겠습니까?")) {
+                    $.ajax({
+                        type: "DELETE",
+                        url: `/api/deletecomment/${commentId}`,
+                        success: function () {
+                            alert("삭제 완료")
+                                location.href=`/detail.html?postsId=${postsId}`
+                        },
+                    });
+                  }
+                } else {
+                    alert("내 댓글이 아닙니다.")
+                    location.href=`/detail.html?postsId=${postsId}`
+                }
+            }
 
-  <body>
-    <div class="mytitle">
-      <h1>나만의 항해 블로그</h1>
-      <button onclick="location.href='/post'">게시글 작성</button>
-    </div>
-    <div class="myposts">
-      <div class="column" id="detail-box">
+      </script>
+
+    </head>
+
+    <body>
+      <div class="mytitle">
+        <h1>나만의 항해 블로그</h1>
+        <button onclick="location.href='/post'">게시글 작성</button>
+        <button onclick="signOut()">로그아웃하기</button>
+        <button class="btn" onclick="window.location.href='/main'">메인 페이지</button>
       </div>
-    </div>
-  </body>
+      <div class="myposts">
+        <div class="column" id="detail-box">
+        </div>
+      </div>
+      <input id="write" class="write" type="text" placeholder="댓글을 입력하세요" >
+      <button onclick="complete()">댓글 작성</button>
+      <div class="comment">
+        <div class="column" id="comment-box">
+        </div>
+      </div>
+    </body>
 </html>

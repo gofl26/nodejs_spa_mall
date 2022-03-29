@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>나만의 항해 블로그</title>
+    <style>
+      * {
+          font-family: 'Gowun Dodum', sans-serif;
+      }
+
+      .mytitle {
+          width: 100%;
+          height: 250px;
+
+          background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://movie-phinf.pstatic.net/20210715_95/1626338192428gTnJl_JPEG/movie_image.jpg');
+          background-position: center;
+          background-size: cover;
+
+          color: white;
+
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+      }
+      .myposts {
+            margin: 20px auto 0px auto;
+            width: 95%;
+            max-width: 1200px;
+      }
+      .card {
+        margin-top: 10px;
+      }
+      .btn {
+                
+                width: 100px;
+                height: 24px;
+                margin-left: 250px;
+                margin-top: 50px;
+                padding-left: 10px;
+
+                font-size: 12px;
+                line-height: 100%;
+                color: #FFFFFF;
+
+                background: #7D24CF;
+                border-radius: 100px;
+            }
+      
+    </style>
+    <script>
+      const token = localStorage.getItem("token")
+
+      let userId1;
+
+      $(document).ready(function () {
+        if (localStorage.getItem("token")) {
+          getSelf(function (user) {
+            userId1 = user.userId
+            console.log(userId1)
+            $('#signOn').hide()
+          })
+        } else{
+          $('#signOut').hide()
+        }
+
+        listing();
+      });
+      console.log(userId1)
+      function getSelf(callback) {
+        $.ajax({
+            type: "GET",
+            url: "/api/users/me",
+            headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            success: function (response) {
+              callback(response.user);
+            },
+        });
+      }
+
+      function listing() {
+          $.ajax({
+              type: 'GET',
+              url: '/api/posts',
+              data: {},
+              success: function (res) {
+                
+                  let rows = res['posts']
+                  for(let i=rows.length-1; i >=0 ; i--){
+                      let date = rows[i]['date']
+                      let title = rows[i]['title']
+                      let name = rows[i]['name']
+                      let postsId = rows[i]['postsId']
+                      let like = rows[i]['like']
+
+                      let temp_html = `<div class="card" style="width: 50rem;">
+                                        <div class="card-body">
+                                          <a href="/detail.html?postsId=${postsId}">${title}</a>
+                                          <h6 class="card-subtitle mb-2 text-muted">${name}</h6>
+                                          <p class="card-text">${date}</p>
+                                          <p class="card-text">좋아요 수 : ${like}</p>
+                                          <button id="like_up${i}" class="btn" onclick="like_up('${like}','${postsId}')">좋아요</button>
+                                          <button id="like_down${i}" class="btn" onclick="like_down('${like}','${postsId}','${i}')">좋아요 취소</button>
+                                        </div>
+                                      </div>`
+
+                      $('#posts-box').append(temp_html)
+                      $(`#like_down${i}`).hide()
+                      
+                      likecheck(i,postsId);
+                  }
+              }
+          })
+      }
+
+      function signOut() {
+        localStorage.clear();
+        window.location.href = "/";
+      }
+
+      function signOn() {
+        window.location.href = "/";
+      }
+
+      function like_up(like1,postsId) {
+        if(!userId1){
+          alert("로그인이 필요한기능입니다.");
+          return location.href="/";
+        }
+        let like=parseInt(like1);
+        like +=1;
+        
+        let userId = userId1;
+        $.ajax({
+            type: 'put',
+            url: '/api/posts/like',
+            contentType: "application/json",
+            data: JSON.stringify({
+                postsId,
+                like,
+                userId,
+            }),
+            success: function (res) {
+                alert("좋아용")
+                location.href="/main"
+            }
+        });
+      }
+
+      function like_down(like1,postsId,i) {
+        if(!userId1){
+          alert("로그인이 필요한기능입니다.");
+          return location.href="/";
+        }
+        let like=parseInt(like1);
+        like -= 1;
+        let userId = userId1;
+        $.ajax({
+            type: 'put',
+            url: '/api/posts/likenot',
+            contentType: "application/json",
+            data: JSON.stringify({
+                postsId,
+                like,
+            }),
+            success: function (res) {
+              deletelike(postsId,i);
+            }
+        });
+      }
+
+      function deletelike(postsId,i) {
+        console.log(i)
+        $.ajax({
+            type: 'delete',
+            url: `/api/deletelike/${postsId}`,
+            success: function (res) {
+                alert("싫어용")
+                $(`#like_down${i}`).hide()
+                $(`#like_up${i}`).show()
+                location.href="/main"
+            }
+        });
+      }
+      
+        
+
+      function likecheck(num,postsId1) {
+        if(!userId1){
+          return;
+        }
+          $.ajax({
+              type: 'GET',
+              url: '/api/posts/likecheck',
+              data: {},
+              success: function (res) {
+                  let rows = res['likecheck'];
+                  for(i=0; i<rows.length; i++) {
+                      let postsId = rows[i]['postsId']
+                      let userId = rows[i]['userId']
+                      if(userId1===userId){
+                        if(postsId===postsId1) {
+                        $(`#like_down${num}`).show()
+                        $(`#like_up${num}`).hide()
+                        }
+                      }
+                  }
+              }
+          })
+      }
+
+    </script>
+
+  </head>
+
+  <body>
+    <div class="mytitle">
+      <h1>나만의 항해 블로그</h1>
+      <button onclick="location.href='/post'">게시글 작성</button>
+      <button id="signOut" onclick="signOut()">로그아웃하기</button>
+      <button id="signOn" onclick="signOn()">로그인하기</button>
+    </div>
+    <div class="myposts">
+      <div class="column" id="posts-box">
+      </div>
+    </div>
+  </body>
+</html>

@@ -15,10 +15,14 @@ app.use(express.static("static"));
 app.use(express.json());
 app.use(requestMiddleware);
 
-app.use("/api", postsRouter);
+app.use("/api", express.urlencoded({ extended: false }), postsRouter);
 
 app.get("/", (req, res) => {
     res.sendFile(__dirname + '/static/index.html');
+});
+
+app.get("/register", (req, res) => {
+    res.sendFile(__dirname + '/static/register.html');
 });
 
 app.get("/post", (req, res) => {
@@ -31,6 +35,10 @@ app.get("/detail", (req, res) => {
 
 app.get("/revise", (req, res) => {
     res.sendFile(__dirname + '/static/revise.html');
+});
+
+app.get("/main", (req, res) => {
+    res.sendFile(__dirname + '/static/main.html');
 });
 
 app.listen(port, () => {
