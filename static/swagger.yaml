@@ -1,0 +1,23 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: 'My API'
+  description: 'My API'
+servers:
+  - description: 'My API'
+    url: http://localhost:3000/
+paths:
+  /api/posts:
+    get:
+      summary: posts API
+      parameters:
+        - name: one
+          in: query
+          description: First Value
+          schema:
+            type: string
+      responses:
+        '200':
+          description: result
+          schema: 
+            type: string

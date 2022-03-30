@@ -84,7 +84,7 @@
 
         listing();
       });
-      console.log(userId1)
+      
       function getSelf(callback) {
         $.ajax({
             type: "GET",
@@ -99,6 +99,7 @@
       }
 
       function listing() {
+        console.log(userId1)
           $.ajax({
               type: 'GET',
               url: '/api/posts',

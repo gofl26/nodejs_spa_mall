@@ -189,9 +189,9 @@
                         let postsId = rows['postsId']
                         let comment = rows['comment']
 
-                        let temp_html = `<input id="name" class="inputname" type="text" placeholder="${name}" >
-                                            <input id="title" class="inputtitle" type="text" placeholder="${title}" >
-                                            <input id="comment" class="inputcomment" type="text" placeholder="${comment}" >
+                        let temp_html = `<input id="name" class="inputname" type="text" value="${name}" >
+                                            <input id="title" class="inputtitle" type="text" value="${title}" >
+                                            <input id="comment" class="inputcomment" type="text" value="${comment}" >
                                             <input id="pw" class="inputpw" type="text" placeholder="pw를 입력하세요" >
                                             <button class="btn" onclick="complete('${name}','${title}','${comment}','${pw}','${postsId}')">작성 완료</button>
                                             <button class="btn" onclick="deletepost('${pw}','${postsId}')">삭제</button>`
@@ -222,7 +222,7 @@
                 if(pw===pw1){
                     $.ajax({
                         type: 'PUT',
-                        url: '/api/revise',
+                        url: '/api/posts/revise',
                         contentType: "application/json",
                         data: JSON.stringify({
                             name: name,

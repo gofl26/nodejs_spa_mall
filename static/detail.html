@@ -155,7 +155,7 @@
                   success: function (res) {
                     let rows = res['comments']
                     
-                    console.log(rows)
+                    
                     for(i=rows.length-1; i>=0;i--){
                       let postsId1 = rows[i]['postsId']
                       if(postsId1===Number(postsId)){
@@ -165,19 +165,22 @@
                         console.log(comment,userId)
                         let temp_html = `<div class="card" style="width: 50rem;">
                                             <div class="card-body">
-                                              <h5 class="card-title">${userId}</a>
-                                              <p class="card-text">${comment}</p>
-                                              <input id="commentRevise${i}" type="text" placeholder="${comment}" >
-                                              <button id="reviseComment${i}" class="btn" onclick="reviseComment('${userId}','${commentId}','${i}')">수정하기</button>
+                                              <input id="commentRevise${i}" type="text" value="${comment}" placeholder="${comment}" >
+                                              <button id="reviseComplete${i}" class="btn" onclick="reviseComment('${userId}','${commentId}','${i}')">수정완료</button>
+                                              <h5 id="commentuserId${i}" class="card-title">${userId}</a>
+                                              <p id="comment${i}" class="card-text">${comment}</p>
+                                              <button id="reviseComment${i}" class="btn" onclick="openRevise('${i}')">수정하기</button>
+                                              
                                               <button id="deletecomment${i}" class="btn" onclick="deletecomment('${userId}','${commentId}')">삭제하기</button>
                                             </div>
                                         </div>`
 
                         $('#comment-box').append(temp_html)
+                        $(`#commentRevise${i}`).hide()
+                        $(`#reviseComplete${i}`).hide()
                         if(userId1!==userId) {
                           $(`#reviseComment${i}`).hide()
                           $(`#deletecomment${i}`).hide()
-                          $(`#commentRevise${i}`).hide()
                         }
                       }
                       
@@ -227,7 +230,16 @@
             });
           }
 
+          function openRevise(i) {
+            console.log(i)
+            $(`#deletecomment${i}`).hide();
+            $(`#commentuserId${i}`).hide();
+            $(`#comment${i}`).hide();
+            $(`#commentRevise${i}`).show();
+            $(`#reviseComplete${i}`).show()
+          }
           function reviseComment(userId,commentId1,i) {
+            
             let comment = $(`#commentRevise${i}`).val()
             if(!comment) {
               alert("수정사항을 입력하세요.");
