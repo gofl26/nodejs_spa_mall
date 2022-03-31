@@ -162,9 +162,16 @@
                 userId,
             }),
             success: function (res) {
-                alert("좋아용")
-                location.href="/main"
-            }
+              console.log(res)
+                if(res.error) {
+                  alert(res.error);
+                }else if(res.posts) {
+                  alert("좋아용");
+                  location.href="/main"
+                }
+                
+            },
+            
         });
       }
 
@@ -174,6 +181,9 @@
           return location.href="/";
         }
         let like=parseInt(like1);
+        if(!like){
+          return;
+        }
         like -= 1;
         let userId = userId1;
         $.ajax({

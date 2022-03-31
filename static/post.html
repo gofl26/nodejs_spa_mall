@@ -168,6 +168,7 @@
             function complete() {
                 let name = $('#name').val()
                 let title = $('#title').val()
+                console.log(typeof title)
                 let comment = $('#comment').val()
                 let pw = $('#pw').val()
                 console.log(name,title,comment,pw)
@@ -184,8 +185,9 @@
                     }),
                     success: function (res) {
                         alert("등록 완료")
-                        location.href="/main"
-                    }
+                        // location.href="/main"
+                    },
+                    
                 });
             }
 

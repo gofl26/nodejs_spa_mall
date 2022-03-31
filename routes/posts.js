@@ -1,60 +1,72 @@
-const express = require("express");
-const Posts = require("../schemas/posts");
-const User = require("../schemas/user");
-const Comments = require("../schemas/comments");
-const Likes = require("../schemas/like");
+const express = require('express');
+const Posts = require('../schemas/posts');
+const User = require('../schemas/user');
+const Comments = require('../schemas/comments');
+const Likes = require('../schemas/like');
 const router = express.Router();
-const CryptoJS = require("crypto-js");
-const jwt = require("jsonwebtoken");
-const authMiddleware = require("../middlewares/auth-middleware");
+const CryptoJS = require('crypto-js');
+const jwt = require('jsonwebtoken');
+const authMiddleware = require('../middlewares/auth-middleware');
 
-router.get("/", (req, res) => {
-    res.send("this is root page");
+router.get('/', (req, res) => {
+    res.send('this is root page');
 });
 
 //<----목록 조회 API---->
-router.get("/posts", async (req,res) => {
+router.get('/posts', async (req, res) => {
     const posts = await Posts.find();
     res.json({
-        posts: posts
+        posts: posts,
     });
 });
 
 //<----상세조회API---->
-router.get("/post/:postsId", async (req, res) => {
+router.get('/post/:postsId', async (req, res) => {
     const { postsId } = req.params;
 
     const [detail] = await Posts.find({ postsId: Number(postsId) });
 
     res.json({
-        detail, 
+        detail,
     });
 });
 
 //<----포스트추가API---->
-router.post("/posts/add", async (req, res) => {
+router.post('/posts/add', async (req, res) => {
     const today = new Date();
     const date = today.toLocaleString();
     const like = 0;
     const { name, title, comment, pw } = req.body;
     var hash = CryptoJS.SHA256(date);
-    const postsId = hash["words"][0];
+    const postsId = hash['words'][0];
 
-    const createdPosts = await Posts.create({ postsId, name, title, comment, pw, date, like });
+    const createdPosts = await Posts.create({
+        postsId,
+        name,
+        title,
+        comment,
+        pw,
+        date,
+        like,
+    });
     res.json({ posts: createdPosts });
 });
 
 //<----수정하기API---->
-router.put("/posts/revise", async (req, res) => {
+router.put('/posts/revise', async (req, res) => {
+    console.log(1);
     const { name, postsId, comment, title } = req.body;
 
-    const createdPosts = await Posts.updateOne({ postsId: Number(postsId) }, { $set: { name,comment,title }});
-    
-    res.json({ posts:  createdPosts });
+    const createdPosts = await Posts.updateOne(
+        { postsId: Number(postsId) },
+        { $set: { name, comment, title } }
+    );
+
+    res.json({ posts: createdPosts });
 });
 
 //<----삭제하기API---->
-router.delete("/delete/:postsId", async (req, res) => {
+router.delete('/delete/:postsId', async (req, res) => {
     const { postsId } = req.params;
 
     const existsPosts = await Posts.find({ postsId: Number(postsId) });
@@ -70,12 +82,12 @@ router.delete("/delete/:postsId", async (req, res) => {
 });
 
 //<----회원가입API---->
-router.post("/users", async (req, res) => {
+router.post('/users', async (req, res) => {
     const { nickname, password, confirmPassword } = req.body;
 
     if (password !== confirmPassword) {
         res.status(400).send({
-            errorMessage: "패스워드가 패스워드 확인란과 동일하지 않습니다.",
+            errorMessage: '패스워드가 패스워드 확인란과 동일하지 않습니다.',
         });
         return;
     }
@@ -85,7 +97,7 @@ router.post("/users", async (req, res) => {
     });
     if (existUsers.length) {
         res.status(400).send({
-            errorMessage: "이미 가입된 이메일 또는 닉네임이 있습니다.",
+            errorMessage: '이미 가입된 이메일 또는 닉네임이 있습니다.',
         });
         return;
     }
@@ -97,7 +109,7 @@ router.post("/users", async (req, res) => {
 });
 
 //<----회원가입테스트코드API---->
-router.post("/users/test", async (req, res) => {
+router.post('/users/test', async (req, res) => {
     const { nickname } = req.body;
 
     const existUsers = await User.find({
@@ -105,7 +117,7 @@ router.post("/users/test", async (req, res) => {
     });
     if (existUsers.length) {
         res.status(400).send({
-            errorMessage: "이미 가입된 이메일 또는 닉네임이 있습니다.",
+            errorMessage: '이미 가입된 이메일 또는 닉네임이 있습니다.',
         });
         return;
     }
@@ -117,29 +129,29 @@ router.post("/users/test", async (req, res) => {
 });
 
 //<----로그인API---->
-router.post("/auth", async (req, res) => {
+router.post('/auth', async (req, res) => {
     const { nickname, password } = req.body;
 
-    const user = await User.findOne({ nickname, password}).exec();
+    const user = await User.findOne({ nickname, password }).exec();
 
     if (!user) {
         res.status(400).send({
-            errorMessage: "닉네임 또는 패스워드를 확인해주세요"
+            errorMessage: '닉네임 또는 패스워드를 확인해주세요',
         });
         return;
     }
-    const token = jwt.sign({ userId: user.userId }, "my-secret-key");
+    const token = jwt.sign({ userId: user.userId }, 'my-secret-key');
     res.send({
         token,
     });
 });
 
 //<----사용자 인증미들웨어---->
-router.get("/users/me", authMiddleware, async (req, res) => {
+router.get('/users/me', authMiddleware, async (req, res) => {
     const { user } = res.locals;
-    if(!user) {
+    if (!user) {
         res.status(401).send({
-            errorMessage: "닉네임 또는 패스워드가 잘못됐습니다."
+            errorMessage: '닉네임 또는 패스워드가 잘못됐습니다.',
         });
         return;
     }
@@ -147,15 +159,15 @@ router.get("/users/me", authMiddleware, async (req, res) => {
     res.send({
         user,
     });
-})
+});
 
 //<----댓글 작성API---->
-router.post("/posts/comment", async (req, res) => {
+router.post('/posts/comment', async (req, res) => {
     const today = new Date();
     const date = today.toLocaleString();
     const { postsId, userId, commentss } = req.body;
     var hash = CryptoJS.SHA256(date);
-    const commentId = hash["words"][0];
+    const commentId = hash['words'][0];
 
     const user = new Comments({ postsId, userId, commentss, commentId });
     await user.save();
@@ -164,24 +176,27 @@ router.post("/posts/comment", async (req, res) => {
 });
 
 //<----댓글 조회API---->
-router.get("/posts/showcomment", async (req,res) => {
+router.get('/posts/showcomment', async (req, res) => {
     const comments = await Comments.find();
     res.json({
         comments,
     });
 });
 
-//<----댓글 수정API----> 
-router.put("/posts/commentRevise", async (req, res) => {
-    const { commentId, commentss, } = req.body;
+//<----댓글 수정API---->
+router.put('/posts/commentRevise', async (req, res) => {
+    const { commentId, commentss } = req.body;
 
-    const createdPosts = await Comments.updateOne({ commentId: Number(commentId) }, { $set: { commentss }});
-    
-    res.json({ posts:  createdPosts });
+    const createdPosts = await Comments.updateOne(
+        { commentId: Number(commentId) },
+        { $set: { commentss } }
+    );
+
+    res.json({ posts: createdPosts });
 });
 
 //<----댓글 삭제API---->
-router.delete("/deletecomment/:commentId", async (req, res) => {
+router.delete('/deletecomment/:commentId', async (req, res) => {
     const { commentId } = req.params;
 
     const existsCarts = await Comments.find({ commentId: commentId });
@@ -193,27 +208,40 @@ router.delete("/deletecomment/:commentId", async (req, res) => {
 });
 
 //<----좋아요API---->
-router.put("/posts/like", async (req, res) => {
+router.put('/posts/like', async (req, res) => {
     const { postsId, like, userId } = req.body;
 
+    const existsCarts = await Likes.find({ postsId: postsId, userId: userId });
+    if (existsCarts.length) {
+        res.send({
+            error: '이미 좋아요한 글입니다.',
+        });
+    }
     const user = new Likes({ userId, postsId });
     await user.save();
-    const createdPosts = await Posts.updateOne({ postsId: Number(postsId) }, { $set: { like: Number(like) }});
-    
-    res.json({ posts:  createdPosts });
+
+    const createdPosts = await Posts.updateOne(
+        { postsId: Number(postsId) },
+        { $set: { like: Number(like) } }
+    );
+
+    res.json({ posts: createdPosts });
 });
 
 //<----좋아요 취소1API---->
-router.put("/posts/likenot", async (req, res) => {
+router.put('/posts/likenot', async (req, res) => {
     const { postsId, like } = req.body;
 
-    const createdPosts = await Posts.updateOne({ postsId: Number(postsId) }, { $set: { like: Number(like) }});
-    
-    res.json({ posts:  createdPosts });
+    const createdPosts = await Posts.updateOne(
+        { postsId: Number(postsId) },
+        { $set: { like: Number(like) } }
+    );
+
+    res.json({ posts: createdPosts });
 });
 
 //<----좋아요 취소2API---->
-router.delete("/deletelike/:postsId", async (req, res) => {
+router.delete('/deletelike/:postsId', async (req, res) => {
     const { postsId } = req.params;
 
     const existsCarts = await Likes.find({ postsId: postsId });
@@ -224,14 +252,11 @@ router.delete("/deletelike/:postsId", async (req, res) => {
 });
 
 //<----좋아요확인API---->
-router.get("/posts/likecheck", async (req,res) => {
+router.get('/posts/likecheck', async (req, res) => {
     const likecheck = await Likes.find();
     res.json({
         likecheck,
     });
 });
-
-
-
 
 module.exports = router;
