@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const postsSchema = mongoose.Schema({
-    postsId: {
-        type: Number,
-        required: true,
-        unique: true,
-    },
+    // postsId: {
+    //     type: Number,
+    //     required: true,
+    //     unique: true,
+    // },
     name: {
         type: String,
         required: true,
@@ -27,6 +27,14 @@ const postsSchema = mongoose.Schema({
     like: {
         type: Number,
     },
+});
+
+postsSchema.virtual('postsId').get(function () {
+    return this._id.toHexString();
+});
+
+postsSchema.set('toJSON', {
+    virtuals: true,
 });
 
 module.exports = mongoose.model('Posts', postsSchema);

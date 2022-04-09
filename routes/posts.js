@@ -23,9 +23,10 @@ router.get('/posts', async (req, res) => {
 //<----상세조회API---->
 router.get('/post/:postsId', async (req, res) => {
     const { postsId } = req.params;
-
-    const [detail] = await Posts.find({ postsId: Number(postsId) });
-
+    console.log(postsId)
+    const o_id = new Object(postsId) 
+    const [detail] = await Posts.find({ _id: o_id });
+    console.log(detail)
     res.json({
         detail,
     });
@@ -37,11 +38,11 @@ router.post('/posts/add', async (req, res) => {
     const date = today.toLocaleString();
     const like = 0;
     const { name, title, comment, pw } = req.body;
-    var hash = CryptoJS.SHA256(date);
-    const postsId = hash['words'][0];
+    // var hash = CryptoJS.SHA256(date);
+    // const postsId = hash['words'][0];
 
     const createdPosts = await Posts.create({
-        postsId,
+        // postsId,
         name,
         title,
         comment,
@@ -54,7 +55,7 @@ router.post('/posts/add', async (req, res) => {
 
 //<----수정하기API---->
 router.put('/posts/revise', async (req, res) => {
-    console.log(1);
+    
     const { name, postsId, comment, title } = req.body;
 
     const createdPosts = await Posts.updateOne(
@@ -168,7 +169,7 @@ router.post('/posts/comment', async (req, res) => {
     const { postsId, userId, commentss } = req.body;
     var hash = CryptoJS.SHA256(date);
     const commentId = hash['words'][0];
-
+    
     const user = new Comments({ postsId, userId, commentss, commentId });
     await user.save();
 

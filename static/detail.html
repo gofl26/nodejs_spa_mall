@@ -125,7 +125,9 @@
                   url: `/api/post/${postsId}`,
                   data: {},
                   success: function (res) {
+                    
                       let rows = res['detail']
+                      console.log(rows)
                       let date = rows['date']
                       let title = rows['title']
                       let name = rows['name']
